@@ -66,8 +66,8 @@ function InvestmentFormModal({
         investedAmount: '',
         currentValue: '',
         interestRate: '',
-        startDate: '',
-        maturityDate: '',
+        startDate: (new Date().toISOString().split('T')[0] as string),
+        maturityDate: (new Date().toISOString().split('T')[0] as string),
         description: '',
         propertyAddress: '',
         propertyAreaSqFt: '',
@@ -84,8 +84,8 @@ function InvestmentFormModal({
                 investedAmount: editingInvestment.investedAmount?.toString() ?? '',
                 currentValue: editingInvestment.currentValue?.toString() ?? '',
                 interestRate: editingInvestment.interestRate?.toString() ?? '',
-                startDate: editingInvestment.startDate ?? '',
-                maturityDate: editingInvestment.maturityDate ?? '',
+                startDate: editingInvestment.startDate ? (new Date(editingInvestment.startDate).toISOString().split('T')[0] as string) : '',
+                maturityDate: editingInvestment.maturityDate ? (new Date(editingInvestment.maturityDate).toISOString().split('T')[0] as string) : '',
                 description: editingInvestment.description ?? '',
                 propertyAddress: editingInvestment.propertyAddress ?? '',
                 propertyAreaSqFt: editingInvestment.propertyAreaSqFt?.toString() ?? '',
@@ -100,8 +100,8 @@ function InvestmentFormModal({
                 investedAmount: '',
                 currentValue: '',
                 interestRate: '',
-                startDate: '',
-                maturityDate: '',
+                startDate: (new Date().toISOString().split('T')[0] as string),
+                maturityDate: (new Date().toISOString().split('T')[0] as string),
                 description: '',
                 propertyAddress: '',
                 propertyAreaSqFt: '',
@@ -136,11 +136,21 @@ function InvestmentFormModal({
         if (formData.interestRate) {
             investmentData.interestRate = parseFloat(formData.interestRate)
         }
-        if (formData.startDate) {
-            investmentData.startDate = formData.startDate
+        const parseDateInputToMs = (input: string): number | undefined => {
+            const trimmed = input.trim()
+            if (!trimmed) return undefined
+            const num = Number(trimmed)
+            if (!Number.isNaN(num)) return num
+            const parsed = Date.parse(trimmed)
+            return Number.isNaN(parsed) ? undefined : parsed
         }
-        if (formData.maturityDate) {
-            investmentData.maturityDate = formData.maturityDate
+        const startMs = parseDateInputToMs(formData.startDate)
+        if (startMs !== undefined) {
+            investmentData.startDate = startMs
+        }
+        const maturityMs = parseDateInputToMs(formData.maturityDate)
+        if (maturityMs !== undefined) {
+            investmentData.maturityDate = maturityMs
         }
         if (formData.propertyAddress) {
             investmentData.propertyAddress = formData.propertyAddress
@@ -258,7 +268,7 @@ function InvestmentFormModal({
                                     style={styles.fieldInput}
                                     value={formData.startDate}
                                     onChangeText={(text) => setFormData({ ...formData, startDate: text })}
-                                    placeholder="YYYY-MM-DD"
+                                    placeholder="YYYY-MM-DD or epoch ms"
                                 />
                             </View>
                             <View style={styles.formField}>
@@ -267,7 +277,7 @@ function InvestmentFormModal({
                                     style={styles.fieldInput}
                                     value={formData.maturityDate}
                                     onChangeText={(text) => setFormData({ ...formData, maturityDate: text })}
-                                    placeholder="YYYY-MM-DD"
+                                    placeholder="YYYY-MM-DD or epoch ms"
                                 />
                             </View>
                         </>

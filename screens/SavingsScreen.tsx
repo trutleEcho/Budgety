@@ -24,7 +24,8 @@ export default function SavingsScreen() {
     name: '',
     targetAmount: '',
     currentAmount: '',
-    description: ''
+    description: '',
+    targetDate: new Date().toISOString().split('T')[0]
   });
 
   useFocusEffect(
@@ -60,7 +61,7 @@ export default function SavingsScreen() {
 
       await addSaving(savingData);
       setModalVisible(false);
-      setFormData({ name: '', targetAmount: '', currentAmount: '', description: '' });
+      setFormData({ name: '', targetAmount: '', currentAmount: '', description: '', targetDate: new Date().toISOString() });
       Alert.alert('Success', 'Saving goal created successfully');
     } catch (error) {
       Alert.alert('Error', 'Failed to create saving goal');
@@ -270,6 +271,16 @@ export default function SavingsScreen() {
                   placeholder="Optional description"
                   multiline
                   numberOfLines={3}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Target Date (Optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={(formData as any).targetDate ?? ''}
+                  onChangeText={(text) => setFormData(prev => ({ ...(prev as any), targetDate: text }))}
+                  placeholder="YYYY-MM-DD or epoch ms"
                 />
               </View>
             </ScrollView>

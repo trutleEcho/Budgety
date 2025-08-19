@@ -5,7 +5,7 @@ export interface Wallet {
   balance: number;
   currency: string;
   description: string;
-  createdAt: string;
+  createdAt: number; // epoch ms
 }
 
 export interface Transaction {
@@ -15,8 +15,8 @@ export interface Transaction {
   category: string;
   description: string;
   walletId: string;
-  date: string;
-  createdAt: string;
+  date: number; // epoch ms
+  createdAt: number; // epoch ms
 }
 
 export interface Budget {
@@ -25,9 +25,9 @@ export interface Budget {
   category: string;
   amount: number;
   period: 'weekly' | 'monthly' | 'yearly';
-  startDate: string;
-  endDate: string | null;
-  createdAt: string;
+  startDate: number; // epoch ms
+  endDate: number | null; // epoch ms
+  createdAt: number; // epoch ms
 }
 
 export interface Saving {
@@ -35,10 +35,10 @@ export interface Saving {
   name: string;
   targetAmount: number;
   currentAmount: number;
-  targetDate: string | null;
+  targetDate: number | null; // epoch ms
   description: string;
   category: string;
-  createdAt: string;
+  createdAt: number; // epoch ms
 }
 
 export interface Loan {
@@ -47,11 +47,11 @@ export interface Loan {
   amount: number;
   personName: string;
   description: string;
-  dueDate: string | null;
+  dueDate: number | null; // epoch ms
   interestRate: number;
   status: 'active' | 'paid' | 'overdue';
   paidAmount?: number; // Optional, as it might not be present initially
-  createdAt: string;
+  createdAt: number; // epoch ms
 }
 
 export interface Investment {
@@ -63,14 +63,14 @@ export interface Investment {
   investedAmount: number;
   currentValue: number;
   interestRate?: number; // For FDs, RDs, bonds (percentage)
-  startDate?: string | null; // Investment start date
-  maturityDate?: string | null; // For FDs, RDs, bonds
+  startDate?: number | null; // epoch ms
+  maturityDate?: number | null; // epoch ms
   // Property-specific fields
   propertyAddress?: string;
   propertyAreaSqFt?: number;
   rentalIncome?: number;
   description: string;
-  createdAt: string;
+  createdAt: number; // epoch ms
 }
 
 // Data models for Personal Finance App
@@ -89,7 +89,7 @@ export const createWallet = ({
   balance: parseFloat(balance as any),
   currency,
   description,
-  createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addWallet
+  createdAt: Date.now(), // Will be overwritten by storage.ts addWallet
 });
 
 // Transaction model
@@ -99,7 +99,7 @@ export const createTransaction = ({
   category = 'general',
   description = '',
   walletId = '',
-  date = new Date().toISOString().split('T')[0] ?? ''
+  date = Date.now()
 }: Partial<Transaction>): Transaction => ({
   id: Date.now().toString(), // Will be overwritten by storage.ts addTransaction
   amount: parseFloat(amount as any),
@@ -107,8 +107,8 @@ export const createTransaction = ({
   category,
   description,
   walletId,
-  date,
-  createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addTransaction
+  date: normalizeToMs(date),
+  createdAt: Date.now(), // Will be overwritten by storage.ts addTransaction
 });
 
 // Budget model
@@ -117,7 +117,7 @@ export const createBudget = ({
   category = 'general',
   amount,
   period = 'monthly', // weekly, monthly, yearly
-  startDate = new Date().toISOString().split('T')[0] ?? '',
+  startDate = Date.now(),
   endDate = null
 }: Partial<Budget>): Budget => ({
   id: Date.now().toString(), // Will be overwritten by storage.ts addBudget
@@ -125,9 +125,9 @@ export const createBudget = ({
   category,
   amount: parseFloat(amount as any),
   period,
-  startDate,
-  endDate,
-  createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addBudget
+  startDate: normalizeToMs(startDate),
+  endDate: endDate === null ? null : normalizeToMs(endDate),
+  createdAt: Date.now(), // Will be overwritten by storage.ts addBudget
 });
 
 // Saving goal model
@@ -143,10 +143,10 @@ export const createSaving = ({
   name,
   targetAmount: parseFloat(targetAmount as any),
   currentAmount: parseFloat(currentAmount as any),
-  targetDate,
+  targetDate: targetDate === null ? null : normalizeToMs(targetDate),
   description,
   category,
-  createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addSaving
+  createdAt: Date.now(), // Will be overwritten by storage.ts addSaving
 });
 
 // Loan model
@@ -164,10 +164,10 @@ export const createLoan = ({
   amount: parseFloat(amount as any),
   personName,
   description,
-  dueDate,
+  dueDate: dueDate === null ? null : normalizeToMs(dueDate),
   interestRate: parseFloat(interestRate as any),
   status,
-  createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addLoan
+  createdAt: Date.now(), // Will be overwritten by storage.ts addLoan
 });
 
 // Investment model
@@ -191,10 +191,10 @@ export const createInvestment = ({
   investedAmount: parseFloat(investedAmount as any),
   currentValue: parseFloat(currentValue as any) || parseFloat(investedAmount as any),
   interestRate: parseFloat(interestRate as any),
-  startDate,
-  maturityDate,
+  startDate: startDate === null ? null : normalizeToMs(startDate),
+  maturityDate: maturityDate === null ? null : normalizeToMs(maturityDate),
   description,
-  createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addInvestment
+  createdAt: Date.now(), // Will be overwritten by storage.ts addInvestment
 });
 
 // Transaction categories
@@ -285,8 +285,8 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
   }).format(amount);
 };
 
-export const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+export const formatDate = (epochMs: number): string => {
+  return new Date(epochMs).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -329,11 +329,8 @@ export const getRecentTransactions = (transactions: Transaction[], limit: number
     .slice(0, limit);
 };
 
-export const getTransactionsByDateRange = (transactions: Transaction[], startDate: string, endDate: string): Transaction[] => {
-  return transactions.filter(t => {
-    const transactionDate = new Date(t.date);
-    return transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
-  });
+export const getTransactionsByDateRange = (transactions: Transaction[], startDateMs: number, endDateMs: number): Transaction[] => {
+  return transactions.filter(t => t.date >= startDateMs && t.date <= endDateMs);
 };
 
 export const getIncomeVsExpenses = (transactions: Transaction[], period: 'week' | 'month' | 'year' = 'month') => {
@@ -354,7 +351,7 @@ export const getIncomeVsExpenses = (transactions: Transaction[], period: 'week' 
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
   }
   
-  const periodTransactions = getTransactionsByDateRange(transactions, startDate.toISOString().split('T')[0] ?? '', now.toISOString().split('T')[0] ?? '');
+  const periodTransactions = getTransactionsByDateRange(transactions, startDate.getTime(), now.getTime());
   
   const income = periodTransactions
     .filter(t => t.type === 'income')
@@ -366,4 +363,16 @@ export const getIncomeVsExpenses = (transactions: Transaction[], period: 'week' 
   
   return { income, expenses, net: income - expenses };
 };
+
+// Helpers
+function normalizeToMs(input: unknown): number {
+  if (typeof input === 'number') return input;
+  if (input instanceof Date) return input.getTime();
+  if (typeof input === 'string') {
+    // Accept ISO or YYYY-MM-DD
+    const parsed = Date.parse(input);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return Date.now();
+}
 

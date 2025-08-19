@@ -28,7 +28,9 @@ export default function BudgetsScreen() {
     name: '',
     category: '',
     amount: '',
-    period: 'monthly'
+    period: 'monthly',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: ''
   });
 
   useFocusEffect(
@@ -58,12 +60,14 @@ export default function BudgetsScreen() {
         name: formData.name.trim(),
         category: formData.category,
         amount: parseFloat(formData.amount),
-        period: formData.period as 'weekly' | 'monthly' | 'yearly'
+        period: formData.period as 'weekly' | 'monthly' | 'yearly',
+        startDate: (formData as any).startDate,
+        endDate: (formData as any).endDate ? (formData as any).endDate : null
       });
 
       await addBudget(budgetData);
       setModalVisible(false);
-      setFormData({ name: '', category: '', amount: '', period: 'monthly' });
+      setFormData({ name: '', category: '', amount: '', period: 'monthly', startDate: new Date().toISOString().split('T')[0], endDate: '' });
       Alert.alert('Success', 'Budget created successfully');
     } catch (error) {
       Alert.alert('Error', 'Failed to create budget');
@@ -242,6 +246,26 @@ export default function BudgetsScreen() {
                   onChangeText={(text) => setFormData(prev => ({ ...prev, amount: text }))}
                   placeholder="0.00"
                   keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Start Date (YYYY-MM-DD or epoch ms)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={(formData as any).startDate ?? ''}
+                  onChangeText={(text) => setFormData(prev => ({ ...(prev as any), startDate: text }))}
+                  placeholder="YYYY-MM-DD or epoch ms"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>End Date (Optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={(formData as any).endDate ?? ''}
+                  onChangeText={(text) => setFormData(prev => ({ ...(prev as any), endDate: text }))}
+                  placeholder="YYYY-MM-DD or epoch ms"
                 />
               </View>
 

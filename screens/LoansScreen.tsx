@@ -25,7 +25,7 @@ export default function LoansScreen() {
     personName: '',
     amount: '',
     description: '',
-    dueDate: '',
+    dueDate: new Date().toISOString().split('T')[0],
     interestRate: ''
   });
 
@@ -47,12 +47,22 @@ export default function LoansScreen() {
     }
 
     try {
+      const parseDateInputToMs = (input?: string): number | null => {
+        if (!input) return null;
+        const trimmed = input.trim();
+        if (trimmed.length === 0) return null;
+        const asNum = Number(trimmed);
+        if (!Number.isNaN(asNum)) return asNum;
+        const parsed = Date.parse(trimmed);
+        return Number.isNaN(parsed) ? null : parsed;
+      };
+
       const loanData = createLoan({
         type: formData.type,
         personName: formData.personName.trim(),
         amount: parseFloat(formData.amount),
         description: formData.description.trim(),
-        dueDate: formData.dueDate || null,
+        dueDate: parseDateInputToMs(formData.dueDate),
         interestRate: formData.interestRate ? parseFloat(formData.interestRate) : 0
       });
 
@@ -402,7 +412,7 @@ export default function LoansScreen() {
                   style={styles.input}
                   value={formData.dueDate}
                   onChangeText={(text) => setFormData(prev => ({ ...prev, dueDate: text }))}
-                  placeholder="YYYY-MM-DD"
+                  placeholder="YYYY-MM-DD or epoch ms"
                 />
               </View>
 

@@ -278,6 +278,17 @@ export default function WalletsScreen(): JSX.Element {
                   placeholderTextColor="#9CA3AF"
                 />
               </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Opened On (Optional)</Text>
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="YYYY-MM-DD or epoch ms"
+                  value={(formData as any).createdAt ?? ''}
+                  onChangeText={(text) => setFormData({ ...(formData as any), createdAt: text } as any)}
+                  placeholderTextColor="#9CA3AF"
+                />
+              </View>
             </ScrollView>
 
             <View style={styles.modalActions}>

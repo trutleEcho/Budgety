@@ -49,13 +49,22 @@ export default function TransactionsScreen() {
     }
 
     try {
+      const parseDateInputToMs = (input: string | undefined): number => {
+        if (!input) return Date.now();
+        const trimmed = input.trim();
+        const asNum = Number(trimmed);
+        if (!Number.isNaN(asNum)) return asNum;
+        const parsed = Date.parse(trimmed);
+        return Number.isNaN(parsed) ? Date.now() : parsed;
+      };
+
       const transactionData = createTransaction({
         amount: parseFloat(formData.amount),
         type: transactionType,
         category: formData.category,
         walletId: formData.walletId,
         description: formData.description.trim(),
-        date: formData.date ?? new Date().toISOString()
+        date: parseDateInputToMs(formData.date)
       });
 
       await addTransaction(transactionData);
@@ -93,14 +102,22 @@ export default function TransactionsScreen() {
     setFormData(prev => ({
       ...prev,
       category: '',
-      walletId: wallets.length > 0 ? (wallets[0] ? wallets[0].id : '') : ''
+      walletId: wallets.length > 0 ? (wallets[0] ? wallets[0].id : '') : '',
+      date: new Date().toISOString().split('T')[0]
     }));
     setModalVisible(true);
   };
 
-  const sortedTransactions = [...transactions].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  // Filters and lazy loading
+  const [visibleCount, setVisibleCount] = useState(20);
+  const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const filtered = transactions.filter(t =>
+    (typeFilter === 'all' || t.type === typeFilter) &&
+    (categoryFilter === 'all' || t.category === categoryFilter)
   );
+  const sortedTransactions = [...filtered].sort((a, b) => b.date - a.date);
+  const visibleTransactions = sortedTransactions.slice(0, visibleCount);
 
   if (loading) {
     return (
@@ -112,9 +129,37 @@ export default function TransactionsScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.transactionsList}>
-        {sortedTransactions.length > 0 ? (
-          sortedTransactions.map((transaction) => {
+      {/* Filters */}
+      <View style={{paddingHorizontal:16, paddingTop:8}}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+          {(['all','income','expense'] as const).map(tf => (
+            <TouchableOpacity key={tf} style={[styles.chip, typeFilter===tf && styles.chipActive]} onPress={()=>{setTypeFilter(tf); setCategoryFilter('all')}}>
+              <Text style={[styles.chipText, typeFilter===tf && styles.chipTextActive]}>{tf.toString()}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+          <TouchableOpacity style={[styles.chip, categoryFilter==='all' && styles.chipActive]} onPress={()=>setCategoryFilter('all')}>
+            <Text style={[styles.chipText, categoryFilter==='all' && styles.chipTextActive]}>All categories</Text>
+          </TouchableOpacity>
+          {(typeFilter==='income'? TRANSACTION_CATEGORIES.INCOME : TRANSACTION_CATEGORIES.EXPENSE).map(cat => (
+            <TouchableOpacity key={cat} style={[styles.chip, categoryFilter===cat && styles.chipActive]} onPress={()=>setCategoryFilter(cat)}>
+              <Text style={[styles.chipText, categoryFilter===cat && styles.chipTextActive]}>{cat}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <ScrollView style={styles.transactionsList}
+        onScroll={({nativeEvent})=>{
+          const paddingToBottom = 24;
+          const reachedBottom = nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >= nativeEvent.contentSize.height - paddingToBottom;
+          if (reachedBottom) setVisibleCount(prev=>Math.min(prev+20, sortedTransactions.length));
+        }}
+        scrollEventThrottle={16}
+      >
+        {visibleTransactions.length > 0 ? (
+          visibleTransactions.map((transaction) => {
             const wallet = wallets.find(w => w.id === transaction.walletId);
             return (
               <View key={transaction.id} style={styles.transactionCard}>
@@ -265,7 +310,7 @@ export default function TransactionsScreen() {
                   style={styles.input}
                   value={formData.date}
                   onChangeText={(text) => setFormData(prev => ({ ...prev, date: text }))}
-                  placeholder="YYYY-MM-DD"
+                  placeholder="YYYY-MM-DD or epoch ms"
                 />
               </View>
 
@@ -486,7 +531,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   chipsBar: {
-    paddingVertical: 4,
+    paddingVertical: 6,
     paddingHorizontal: 2,
   },
   chip: {

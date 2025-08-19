@@ -98,7 +98,7 @@ const profileItems = [
     },
 ];
 
-function MenuItem({ item }) {
+function MenuItem({ item }: { item: any }) {
     return (
         <TouchableOpacity style={styles.menuItem} onPress={item.onPress}>
             <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
@@ -149,7 +149,7 @@ export default function MoreScreen() {
 
             {/* App Info */}
             <View style={styles.appInfo}>
-                <TouchableOpacity onPress={() => navigation.navigate('VersionLogScreen')}>
+                <TouchableOpacity onPress={() => navigation.navigate('VersionLogScreen' as never)}>
                     <Text style={styles.appVersion}>
                         Version {appConfig.expo.version}
                     </Text>

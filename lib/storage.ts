@@ -67,7 +67,7 @@ export const addWallet = async (wallet: Omit<Wallet, 'id' | 'createdAt'>): Promi
   const newWallet: Wallet = {
     id: Date.now().toString(),
     ...wallet,
-    createdAt: new Date().toISOString()
+    createdAt: Date.now()
   };
   wallets.push(newWallet);
   await saveWallets(wallets);
@@ -109,7 +109,7 @@ export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'crea
   const newTransaction: Transaction = {
     id: Date.now().toString(),
     ...transaction,
-    createdAt: new Date().toISOString()
+    createdAt: Date.now()
   };
   transactions.push(newTransaction);
   await saveTransactions(transactions);
@@ -214,7 +214,7 @@ export const addBudget = async (budget: Omit<Budget, 'id' | 'createdAt'>): Promi
   const newBudget: Budget = {
     id: Date.now().toString(),
     ...budget,
-    createdAt: new Date().toISOString()
+    createdAt: Date.now()
   };
   budgets.push(newBudget);
   await saveBudgets(budgets);
@@ -256,7 +256,7 @@ export const addSaving = async (saving: Omit<Saving, 'id' | 'createdAt'>): Promi
   const newSaving: Saving = {
     id: Date.now().toString(),
     ...saving,
-    createdAt: new Date().toISOString()
+    createdAt: Date.now()
   };
   savings.push(newSaving);
   await saveSavings(savings);
@@ -298,7 +298,7 @@ export const addLoan = async (loan: Omit<Loan, 'id' | 'createdAt'>): Promise<Loa
   const newLoan: Loan = {
     id: Date.now().toString(),
     ...loan,
-    createdAt: new Date().toISOString()
+    createdAt: Date.now()
   };
   loans.push(newLoan);
   await saveLoans(loans);
@@ -340,7 +340,7 @@ export const addInvestment = async (investment: Omit<Investment, 'id' | 'created
   const newInvestment: Investment = {
     id: Date.now().toString(),
     ...investment,
-    createdAt: new Date().toISOString()
+    createdAt: Date.now()
   };
   
   // TODO: For FD/RD types, calculate currentValue based on interest rate and time if maturity date has passed

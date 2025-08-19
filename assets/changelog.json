@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.0.3",
+    "date": "2025-08-19",
+    "changes": [
+      { "type": "Improved", "text": "Improved thr overall ui of the application" }
+    ]
+  },
+  {
     "version": "1.0.2",
     "date": "2025-08-15",
     "changes": [
@@ -12,7 +19,7 @@
     "version": "1.0.1",
     "date": "2025-07-20",
     "changes": [
-      { "type": "Added", "text": "Released for prod" },
+      { "type": "Added", "text": "Released for prod" }
     ]
   },
   {
