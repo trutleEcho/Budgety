@@ -9,7 +9,6 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useFinanceData } from '../hooks/useFinanceData';
 import {formatCurrency, formatDate, createLoan, type Loan} from '../lib/models';
@@ -360,16 +359,20 @@ export default function LoansScreen() {
             <ScrollView style={styles.form}>
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Type *</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.type}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Money Lent (I gave money)" value="lent" />
-                    <Picker.Item label="Money Borrowed (I received money)" value="borrowed" />
-                  </Picker>
-                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+                  {[
+                    { label: 'Money Lent (I gave money)', value: 'lent' },
+                    { label: 'Money Borrowed (I received money)', value: 'borrowed' },
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[styles.chip, formData.type === opt.value && styles.chipActive]}
+                      onPress={() => setFormData(prev => ({ ...prev, type: opt.value as ('lent'|'borrowed') }))}
+                    >
+                      <Text style={[styles.chipText, formData.type === opt.value && styles.chipTextActive]}>{opt.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
 
               <View style={styles.inputGroup}>
@@ -516,7 +519,7 @@ export default function LoansScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8FAFC',
   },
   loadingContainer: {
     flex: 1,
@@ -748,16 +751,16 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
+    alignItems: 'stretch',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    margin: 20,
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
+    width: '100%',
+    maxHeight: '90%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -806,6 +809,31 @@ const styles = StyleSheet.create({
   picker: {
     color: '#000',
     height: 50,
+  },
+  chipsBar: {
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    marginRight: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  chipActive: {
+    backgroundColor: '#EEF2FF',
+    borderColor: '#C7D2FE',
+  },
+  chipText: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  chipTextActive: {
+    color: '#4338CA',
   },
   modalActions: {
     flexDirection: 'row',

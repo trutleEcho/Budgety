@@ -11,7 +11,6 @@ import {
   Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import { useFinanceData } from '../hooks/useFinanceData';
 import { formatCurrency, WALLET_TYPES, createWallet, type Wallet } from '../lib/models';
 import {useFocusEffect} from "@react-navigation/native";
@@ -239,21 +238,20 @@ export default function WalletsScreen(): JSX.Element {
 
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Wallet Type *</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.type}
-                    onValueChange={(value) => setFormData({ ...formData, type: value })}
-                    style={styles.picker}
-                  >
-                    {WALLET_TYPES.map((type) => (
-                      <Picker.Item 
-                        key={type.value} 
-                        label={type.label} 
-                        value={type.value} 
-                      />
-                    ))}
-                  </Picker>
-                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+                  {WALLET_TYPES.map((type) => {
+                    const active = formData.type === type.value
+                    return (
+                      <TouchableOpacity
+                        key={type.value}
+                        style={[styles.chip, active && styles.chipActive]}
+                        onPress={() => setFormData({ ...formData, type: type.value })}
+                      >
+                        <Text style={[styles.chipText, active && styles.chipTextActive]}>{type.label}</Text>
+                      </TouchableOpacity>
+                    )
+                  })}
+                </ScrollView>
               </View>
 
               <View style={styles.formGroup}>
@@ -559,6 +557,31 @@ const styles = StyleSheet.create({
   picker: {
     color: '#000',
     height: 50,
+  },
+  chipsBar: {
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    marginRight: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  chipActive: {
+    backgroundColor: '#EEF2FF',
+    borderColor: '#C7D2FE',
+  },
+  chipText: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  chipTextActive: {
+    color: '#4338CA',
   },
   modalActions: {
     flexDirection: 'row',

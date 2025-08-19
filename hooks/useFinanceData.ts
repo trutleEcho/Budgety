@@ -4,9 +4,10 @@ import {
   getTransactions, addTransaction, updateTransaction, deleteTransaction,
   getBudgets, addBudget, updateBudget, deleteBudget,
   getSavings, addSaving, updateSaving, deleteSaving,
-  getLoans, addLoan, updateLoan, deleteLoan
+  getLoans, addLoan, updateLoan, deleteLoan,
+  getInvestments, addInvestment, updateInvestment, deleteInvestment
 } from '../lib/storage';
-import type{ Wallet, Transaction, Budget, Saving, Loan } from '../lib/models';
+import type{ Wallet, Transaction, Budget, Saving, Loan, Investment } from '../lib/models';
 
 interface FinanceDataHook {
   wallets: Wallet[];
@@ -14,6 +15,7 @@ interface FinanceDataHook {
   budgets: Budget[];
   savings: Saving[];
   loans: Loan[];
+  investments: Investment[];
   loading: boolean;
   createWallet: (walletData: Omit<Wallet, 'id' | 'createdAt'>) => Promise<Wallet>;
   editWallet: (walletId: string, updates: Partial<Wallet>) => Promise<Wallet | null>;
@@ -30,6 +32,9 @@ interface FinanceDataHook {
   createLoan: (loanData: Omit<Loan, 'id' | 'createdAt'>) => Promise<Loan>;
   editLoan: (loanId: string, updates: Partial<Loan>) => Promise<Loan | null>;
   removeLoan: (loanId: string) => Promise<boolean>;
+  createInvestment: (investmentData: Omit<Investment, 'id' | 'createdAt'>) => Promise<Investment>;
+  editInvestment: (investmentId: string, updates: Partial<Investment>) => Promise<Investment | null>;
+  removeInvestment: (investmentId: string) => Promise<boolean>;
   refreshData: () => Promise<void>;
 }
 
@@ -39,18 +44,20 @@ export const useFinanceData = (): FinanceDataHook => {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [savings, setSavings] = useState<Saving[]>([]);
   const [loans, setLoans] = useState<Loan[]>([]);
+  const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Load all data on mount
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [walletsData, transactionsData, budgetsData, savingsData, loansData] = await Promise.all([
+      const [walletsData, transactionsData, budgetsData, savingsData, loansData, investmentsData] = await Promise.all([
         getWallets(),
         getTransactions(),
         getBudgets(),
         getSavings(),
-        getLoans()
+        getLoans(),
+        getInvestments()
       ]);
       
       setWallets(walletsData);
@@ -58,6 +65,7 @@ export const useFinanceData = (): FinanceDataHook => {
       setBudgets(budgetsData);
       setSavings(savingsData);
       setLoans(loansData);
+      setInvestments(investmentsData);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -261,6 +269,42 @@ export const useFinanceData = (): FinanceDataHook => {
     }
   }, []);
 
+  // Investment operations
+  const createInvestment = useCallback(async (investmentData: Omit<Investment, 'id' | 'createdAt'>) => {
+    try {
+      const newInvestment = await addInvestment(investmentData);
+      setInvestments(prev => [...prev, newInvestment]);
+      return newInvestment;
+    } catch (error) {
+      console.error("Error creating investment:", error);
+      throw error;
+    }
+  }, []);
+
+  const editInvestment = useCallback(async (investmentId: string, updates: Partial<Investment>) => {
+    try {
+      const updatedInvestment = await updateInvestment(investmentId, updates);
+      if (updatedInvestment) {
+        setInvestments(prev => prev.map(i => i.id === investmentId ? updatedInvestment : i));
+      }
+      return updatedInvestment;
+    } catch (error) {
+      console.error("Error updating investment:", error);
+      throw error;
+    }
+  }, []);
+
+  const removeInvestment = useCallback(async (investmentId: string) => {
+    try {
+      await deleteInvestment(investmentId);
+      setInvestments(prev => prev.filter(i => i.id !== investmentId));
+      return true;
+    } catch (error) {
+      console.error("Error deleting investment:", error);
+      throw error;
+    }
+  }, []);
+
   return {
     // Data
     wallets,
@@ -268,6 +312,7 @@ export const useFinanceData = (): FinanceDataHook => {
     budgets,
     savings,
     loans,
+    investments,
     loading,
     
     // Operations
@@ -290,6 +335,10 @@ export const useFinanceData = (): FinanceDataHook => {
     createLoan,
     editLoan,
     removeLoan,
+    
+    createInvestment,
+    editInvestment,
+    removeInvestment,
     
     // Utility
     refreshData: loadData

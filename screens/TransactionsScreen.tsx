@@ -9,7 +9,6 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useFinanceData } from '../hooks/useFinanceData';
 import {formatCurrency, formatDate, TRANSACTION_CATEGORIES, createTransaction, type Transaction} from '../lib/models';
@@ -217,37 +216,47 @@ export default function TransactionsScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Category *</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.category}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                    style={styles.picker}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+                  <TouchableOpacity
+                    style={[styles.chip, formData.category === '' && styles.chipActive]}
+                    onPress={() => setFormData(prev => ({ ...prev, category: '' }))}
                   >
-                    <Picker.Item label="Select category" value="" />
-                    {(transactionType === 'income' 
-                      ? TRANSACTION_CATEGORIES.INCOME 
-                      : TRANSACTION_CATEGORIES.EXPENSE
-                    ).map((category) => (
-                      <Picker.Item key={category} label={category} value={category} />
-                    ))}
-                  </Picker>
-                </View>
+                    <Text style={[styles.chipText, formData.category === '' && styles.chipTextActive]}>Select category</Text>
+                  </TouchableOpacity>
+                  {(transactionType === 'income' 
+                    ? TRANSACTION_CATEGORIES.INCOME 
+                    : TRANSACTION_CATEGORIES.EXPENSE
+                  ).map((category) => (
+                    <TouchableOpacity
+                      key={category}
+                      style={[styles.chip, formData.category === category && styles.chipActive]}
+                      onPress={() => setFormData(prev => ({ ...prev, category }))}
+                    >
+                      <Text style={[styles.chipText, formData.category === category && styles.chipTextActive]}>{category}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Wallet *</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.walletId}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, walletId: value }))}
-                    style={styles.picker}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+                  <TouchableOpacity
+                    style={[styles.chip, formData.walletId === '' && styles.chipActive]}
+                    onPress={() => setFormData(prev => ({ ...prev, walletId: '' }))}
                   >
-                    <Picker.Item label="Select wallet" value="" />
-                    {wallets.map((wallet) => (
-                      <Picker.Item key={wallet.id} label={wallet.name} value={wallet.id} />
-                    ))}
-                  </Picker>
-                </View>
+                    <Text style={[styles.chipText, formData.walletId === '' && styles.chipTextActive]}>Select wallet</Text>
+                  </TouchableOpacity>
+                  {wallets.map((wallet) => (
+                    <TouchableOpacity
+                      key={wallet.id}
+                      style={[styles.chip, formData.walletId === wallet.id && styles.chipActive]}
+                      onPress={() => setFormData(prev => ({ ...prev, walletId: wallet.id }))}
+                    >
+                      <Text style={[styles.chipText, formData.walletId === wallet.id && styles.chipTextActive]}>{wallet.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
 
               <View style={styles.inputGroup}>
@@ -299,7 +308,7 @@ export default function TransactionsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8FAFC',
   },
   loadingContainer: {
     flex: 1,
@@ -416,16 +425,16 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
+    alignItems: 'stretch',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    margin: 20,
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
+    width: '100%',
+    maxHeight: '90%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -475,6 +484,31 @@ const styles = StyleSheet.create({
   picker: {
     color: '#333',
     height: 50,
+  },
+  chipsBar: {
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    marginRight: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  chipActive: {
+    backgroundColor: '#EEF2FF',
+    borderColor: '#C7D2FE',
+  },
+  chipText: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  chipTextActive: {
+    color: '#4338CA',
   },
   modalActions: {
     flexDirection: 'row',

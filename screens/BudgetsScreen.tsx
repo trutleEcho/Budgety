@@ -9,7 +9,6 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useFinanceData } from '../hooks/useFinanceData';
 import {
@@ -216,18 +215,23 @@ export default function BudgetsScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Category *</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.category}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                    style={styles.picker}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+                  <TouchableOpacity
+                    style={[styles.chip, formData.category === '' && styles.chipActive]}
+                    onPress={() => setFormData(prev => ({ ...prev, category: '' }))}
                   >
-                    <Picker.Item label="Select category" value="" />
-                    {TRANSACTION_CATEGORIES.EXPENSE.map((category) => (
-                      <Picker.Item key={category} label={category} value={category} />
-                    ))}
-                  </Picker>
-                </View>
+                    <Text style={[styles.chipText, formData.category === '' && styles.chipTextActive]}>Select category</Text>
+                  </TouchableOpacity>
+                  {TRANSACTION_CATEGORIES.EXPENSE.map((category) => (
+                    <TouchableOpacity
+                      key={category}
+                      style={[styles.chip, formData.category === category && styles.chipActive]}
+                      onPress={() => setFormData(prev => ({ ...prev, category }))}
+                    >
+                      <Text style={[styles.chipText, formData.category === category && styles.chipTextActive]}>{category}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
 
               <View style={styles.inputGroup}>
@@ -243,17 +247,17 @@ export default function BudgetsScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Period *</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.period}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, period: value }))}
-                    style={styles.picker}
-                  >
-                    {BUDGET_PERIODS.map((period) => (
-                      <Picker.Item key={period.value} label={period.label} value={period.value} />
-                    ))}
-                  </Picker>
-                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsBar}>
+                  {BUDGET_PERIODS.map((period) => (
+                    <TouchableOpacity
+                      key={period.value}
+                      style={[styles.chip, formData.period === period.value && styles.chipActive]}
+                      onPress={() => setFormData(prev => ({ ...prev, period: period.value }))}
+                    >
+                      <Text style={[styles.chipText, formData.period === period.value && styles.chipTextActive]}>{period.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             </ScrollView>
 
@@ -281,7 +285,7 @@ export default function BudgetsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8FAFC',
   },
   loadingContainer: {
     flex: 1,
@@ -419,16 +423,16 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
+    alignItems: 'stretch',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    margin: 20,
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
+    width: '100%',
+    maxHeight: '90%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -474,6 +478,31 @@ const styles = StyleSheet.create({
   picker: {
     color: '#000',
     height: 50,
+  },
+  chipsBar: {
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    marginRight: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  chipActive: {
+    backgroundColor: '#EEF2FF',
+    borderColor: '#C7D2FE',
+  },
+  chipText: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  chipTextActive: {
+    color: '#4338CA',
   },
   modalActions: {
     flexDirection: 'row',

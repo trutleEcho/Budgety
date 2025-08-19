@@ -49,18 +49,19 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps): J
   const { income, expenses, net } = getIncomeVsExpenses(transactions, 'month');
   const recentTransactions = getRecentTransactions(transactions, 3);
 
-  const handleAddIncome = () => {
-    navigation.navigate('Transactions', { 
-      screen: 'AddTransaction', 
-      params: { type: 'income' } 
+  const navigateToFinanceTab = (tab: 'Transactions' | 'Wallets' | 'Budgets' | 'Savings') => {
+    navigation.navigate('Finance', {
+      screen: 'FinanceTabs',
+      params: { screen: tab },
     });
   };
 
+  const handleAddIncome = () => {
+    navigateToFinanceTab('Transactions');
+  };
+
   const handleAddExpense = () => {
-    navigation.navigate('Transactions', { 
-      screen: 'AddTransaction', 
-      params: { type: 'expense' } 
-    });
+    navigateToFinanceTab('Transactions');
   };
 
   const renderTransactionItem = (transaction: Transaction) => (
@@ -212,7 +213,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps): J
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Transactions</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
+          <TouchableOpacity onPress={() => navigateToFinanceTab('Transactions')}>
             <Text style={styles.sectionLink}>View All</Text>
           </TouchableOpacity>
         </View>
@@ -234,7 +235,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps): J
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Budget Overview</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Budgets')}>
+            <TouchableOpacity onPress={() => navigateToFinanceTab('Budgets')}>
               <Text style={styles.sectionLink}>View All</Text>
             </TouchableOpacity>
           </View>
@@ -249,7 +250,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps): J
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Savings Goals</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Savings')}>
+            <TouchableOpacity onPress={() => navigateToFinanceTab('Savings')}>
               <Text style={styles.sectionLink}>View All</Text>
             </TouchableOpacity>
           </View>

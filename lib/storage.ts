@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Wallet, Transaction, Budget, Saving, Loan } from './models';
+import type { Wallet, Transaction, Budget, Saving, Loan, Investment } from './models';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -7,7 +7,8 @@ const STORAGE_KEYS = {
   TRANSACTIONS: 'budgety_transactions',
   BUDGETS: 'budgety_budgets',
   SAVINGS: 'budgety_savings',
-  LOANS: 'budgety_loans'
+  LOANS: 'budgety_loans',
+  INVESTMENTS: 'budgety_investments'
 };
 
 // Generic storage functions
@@ -322,6 +323,56 @@ export const deleteLoan = async (loanId: string): Promise<boolean> => {
   const loans = await getLoans();
   const filteredLoans = loans.filter(l => l.id !== loanId);
   await saveLoans(filteredLoans);
+  return true;
+};
+
+// Investment storage functions
+export const getInvestments = async (): Promise<Investment[]> => {
+  return await getData<Investment[]>(STORAGE_KEYS.INVESTMENTS, []);
+};
+
+export const saveInvestments = async (investments: Investment[]): Promise<boolean> => {
+  return await storeData<Investment[]>(STORAGE_KEYS.INVESTMENTS, investments);
+};
+
+export const addInvestment = async (investment: Omit<Investment, 'id' | 'createdAt'>): Promise<Investment> => {
+  const investments = await getInvestments();
+  const newInvestment: Investment = {
+    id: Date.now().toString(),
+    ...investment,
+    createdAt: new Date().toISOString()
+  };
+  
+  // TODO: For FD/RD types, calculate currentValue based on interest rate and time if maturity date has passed
+  // This could include compound interest calculations for different investment types
+  
+  investments.push(newInvestment);
+  await saveInvestments(investments);
+  return newInvestment;
+};
+
+export const updateInvestment = async (investmentId: string, updates: Partial<Investment>): Promise<Investment | null> => {
+  const investments = await getInvestments();
+  const index = investments.findIndex(i => i.id === investmentId);
+  if (index !== -1) {
+    const existingInvestment = investments[index];
+    if (existingInvestment) {
+      const updatedInvestment = { ...existingInvestment, ...updates };
+      
+      // TODO: For FD/RD types, optionally recalculate currentValue based on updated interest rate or dates
+      
+      investments[index] = updatedInvestment;
+      await saveInvestments(investments);
+      return investments[index];
+    }
+  }
+  return null;
+};
+
+export const deleteInvestment = async (investmentId: string): Promise<boolean> => {
+  const investments = await getInvestments();
+  const filteredInvestments = investments.filter(i => i.id !== investmentId);
+  await saveInvestments(filteredInvestments);
   return true;
 };
 

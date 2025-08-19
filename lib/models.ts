@@ -54,6 +54,25 @@ export interface Loan {
   createdAt: string;
 }
 
+export interface Investment {
+  id: string;
+  name: string;
+  type: 'fd' | 'rd' | 'stock' | 'mutual_fund' | 'etf' | 'bond' | 'crypto' | 'property' | 'other';
+  symbol?: string; // For stocks, ETFs, crypto
+  institutionName?: string; // For FDs, RDs, bonds
+  investedAmount: number;
+  currentValue: number;
+  interestRate?: number; // For FDs, RDs, bonds (percentage)
+  startDate?: string | null; // Investment start date
+  maturityDate?: string | null; // For FDs, RDs, bonds
+  // Property-specific fields
+  propertyAddress?: string;
+  propertyAreaSqFt?: number;
+  rentalIncome?: number;
+  description: string;
+  createdAt: string;
+}
+
 // Data models for Personal Finance App
 
 // Wallet model
@@ -151,25 +170,74 @@ export const createLoan = ({
   createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addLoan
 });
 
+// Investment model
+export const createInvestment = ({
+  name = 'New Investment',
+  type = 'other',
+  symbol = '',
+  institutionName = '',
+  investedAmount,
+  currentValue,
+  interestRate = 0,
+  startDate = null,
+  maturityDate = null,
+  description = ''
+}: Partial<Investment>): Investment => ({
+  id: Date.now().toString(), // Will be overwritten by storage.ts addInvestment
+  name,
+  type,
+  symbol,
+  institutionName,
+  investedAmount: parseFloat(investedAmount as any),
+  currentValue: parseFloat(currentValue as any) || parseFloat(investedAmount as any),
+  interestRate: parseFloat(interestRate as any),
+  startDate,
+  maturityDate,
+  description,
+  createdAt: new Date().toISOString(), // Will be overwritten by storage.ts addInvestment
+});
+
 // Transaction categories
 export const TRANSACTION_CATEGORIES = {
   INCOME: [
     'Salary',
+    'Bonus',
+    'Overtime',
     'Freelance',
     'Business',
-    'Investment',
+    'Rental Income',
+    'Interest',
+    'Dividends',
+    'Capital Gains',
+    'Refunds & Reimbursements',
+    'Government Benefits',
     'Gift',
     'Other Income'
   ] as const,
   EXPENSE: [
-    'Food & Dining',
+    'Rent/Mortgage',
+    'Utilities',
+    'Groceries',
+    'Dining Out',
     'Transportation',
-    'Shopping',
-    'Entertainment',
-    'Bills & Utilities',
+    'Fuel',
+    'Car Payment',
+    'Insurance',
+    'Phone & Internet',
+    'Subscriptions',
     'Healthcare',
+    'Medications',
     'Education',
+    'Childcare',
+    'Gifts & Donations',
+    'Personal Care',
+    'Clothing',
+    'Home Maintenance',
+    'Entertainment',
     'Travel',
+    'Taxes',
+    'Fees & Charges',
+    'Miscellaneous',
     'Other Expense'
   ] as const
 };
@@ -194,6 +262,19 @@ export const LOAN_STATUSES = [
   { value: 'active', label: 'Active' },
   { value: 'paid', label: 'Paid' },
   { value: 'overdue', label: 'Overdue' }
+] as const;
+
+// Investment types
+export const INVESTMENT_TYPES = [
+  { value: 'fd', label: 'Fixed Deposit (FD)', icon: 'shield-checkmark' },
+  { value: 'rd', label: 'Recurring Deposit (RD)', icon: 'repeat' },
+  { value: 'property', label: 'Property', icon: 'home' },
+  { value: 'stock', label: 'Stock', icon: 'trending-up' },
+  { value: 'mutual_fund', label: 'Mutual Fund', icon: 'pie-chart' },
+  { value: 'etf', label: 'ETF', icon: 'analytics' },
+  { value: 'bond', label: 'Bond', icon: 'document-text' },
+  { value: 'crypto', label: 'Cryptocurrency', icon: 'logo-bitcoin' },
+  { value: 'other', label: 'Other', icon: 'ellipse' }
 ] as const;
 
 // Utility functions

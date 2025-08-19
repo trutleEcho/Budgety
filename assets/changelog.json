@@ -1,0 +1,25 @@
+[
+  {
+    "version": "1.0.2",
+    "date": "2025-08-15",
+    "changes": [
+      { "type": "Added", "text": "Investments section" },
+      { "type": "Improved", "text": "Tab navigation" },
+      { "type": "Fixed", "text": "categories" }
+    ]
+  },
+  {
+    "version": "1.0.1",
+    "date": "2025-07-20",
+    "changes": [
+      { "type": "Added", "text": "Released for prod" },
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "date": "2025-07-01",
+    "changes": [
+      "Initial release with core features"
+    ]
+  }
+]
