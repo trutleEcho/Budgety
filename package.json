@@ -20,6 +20,7 @@
     "@react-navigation/native-stack": "^7.3.25",
     "@react-navigation/stack": "^7.4.7",
     "expo": "~53.0.20",
+    "expo-router": "^5.1.4",
     "expo-status-bar": "~2.2.3",
     "expo-vector-icons": "^10.0.1",
     "react": "19.0.0",

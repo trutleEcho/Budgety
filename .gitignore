@@ -39,3 +39,4 @@ yarn-error.*
 vcs.xml
 /android
 /ios
+.vercel

@@ -28,6 +28,7 @@
       "package": "com.pradyumnamatrexsoftwares.Budgety"
     },
     "web": {
+      "output": "server",
       "bundler": "metro",
       "favicon": "./assets/favicon.png",
       "pwa": {
