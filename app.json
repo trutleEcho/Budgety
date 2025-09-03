@@ -28,7 +28,19 @@
       "package": "com.pradyumnamatrexsoftwares.Budgety"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "pwa": {
+        "name": "Budgety",
+        "shortName": "Budgety",
+        "backgroundColor": "#ffffff",
+        "themeColor": "#5299e0",
+        "display": "standalone",
+        "orientation": "portrait",
+        "scope": "/",
+        "startUrl": "/",
+        "manifest": true
+      }
     },
     "extra": {
       "eas": {

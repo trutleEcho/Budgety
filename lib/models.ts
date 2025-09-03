@@ -278,15 +278,15 @@ export const INVESTMENT_TYPES = [
 ] as const;
 
 // Utility functions
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
+export const formatCurrency = (amount: number, currency: string = 'INR'): string => {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency
   }).format(amount);
 };
 
 export const formatDate = (epochMs: number): string => {
-  return new Date(epochMs).toLocaleDateString('en-US', {
+  return new Date(epochMs).toLocaleDateString('en-IN', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'

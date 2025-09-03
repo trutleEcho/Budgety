@@ -12,12 +12,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useFinanceData } from '../hooks/useFinanceData'
-import type { Investment } from '../lib/models'
+import {formatCurrency, type Investment} from '../lib/models'
 import { INVESTMENT_TYPES } from '../lib/models'
-
-/** Currency formatter */
-const formatCurrency = (value: number): string =>
-    `$${(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
 
 /** Type label lookup */
 const getTypeLabel = (type: Investment['type']): string => {
